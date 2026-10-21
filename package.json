@@ -1,0 +1,56 @@
+﻿{
+    "name":  "dsh-shotcut",
+    "version":  "1.0.1",
+    "description":  "Scissors screenshot button in the DSH chat composer. It grabs the whole desktop while this window is made temporarily transparent, so content hidden behind the window is captured too; crop, annotate, then the result drops straight into the composer. Windows only.",
+    "type":  "module",
+    "main":  "lib/index.js",
+    "exports":  {
+                    ".":  {
+                              "default":  "./lib/index.js"
+                          },
+                    "./client":  "./client/client.js",
+                    "./cordis.patch.yml":  "./cordis.patch.yml",
+                    "./package.json":  "./package.json"
+                },
+    "files":  [
+                  "lib",
+                  "client",
+                  "capture.py",
+                  "capture.ps1",
+                  "cordis.patch.yml",
+                  "README.md",
+                  "README.zh.md",
+                  "LICENSE"
+              ],
+    "dsh":  {
+                "bundle":  {
+                               "patch":  "./cordis.patch.yml"
+                           },
+                "client":  {
+                               "platform":  "web"
+                           }
+            },
+    "keywords":  [
+                     "dsh",
+                     "deepseek-harness",
+                     "dsh-plugin",
+                     "screenshot",
+                     "screen-capture",
+                     "annotation"
+                 ],
+    "license":  "MIT",
+    "os":  [
+               "win32"
+           ],
+    "engines":  {
+                    "node":  "\u003e=20"
+                },
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/Wyy1972/dsh-shotcut.git"
+                   },
+    "homepage":  "https://github.com/Wyy1972/dsh-shotcut#readme",
+    "bugs":  {
+                 "url":  "https://github.com/Wyy1972/dsh-shotcut/issues"
+             }
+}
