@@ -1,0 +1,6 @@
+# 这个文件只存在于本地，永不入库。
+.gh-token
+.npm-token
+*.log
+__pycache__/
+node_modules/
