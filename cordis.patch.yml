@@ -1,0 +1,14 @@
+# dsh-shotcut 组合补丁：往 profile 里插入一行 host 插件。
+#
+# 行 id 固定为 shotcut。想在用户 profile 的 cordis.patch.yml 里改配置时，
+# 按 id 覆盖即可（补丁是整对象替换，不是深合并）：
+#
+#   - id: shotcut
+#     name: 'dsh-shotcut'
+#     config:
+#       workDir: 'D:\tools\dshot'          # 脚本/报告/临时图的目录
+#       pythonPath: 'C:\...\python.exe'     # 不写则自动探测
+#
+- insert:
+    - id: shotcut
+      name: 'dsh-shotcut'
