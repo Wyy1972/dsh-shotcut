@@ -15,10 +15,13 @@ window.__ModuleLoader__.load({
     var React = require('react')
 
     var GREEN = '#00C375'
+    var AMBER = '#FFB02E'
     var X_RED = '#E64340'
     var COLORS = ['#E64340', '#FFB300', '#2B7FFF', '#111111']
     var WIDTHS = [2, 4, 7]
-    var MODE_KEY = 'dshot.hideSelf'
+    // v2：换一个存储键。之前自动点击测试误把「让开本页」开关拨到了关闭，
+    // 旧键里存着 '0'，于是剪刀默默退化成"只截窗口内"，十字出不了页面。
+    var MODE_KEY = 'dshot.hideSelf.v2'
     var CAPTURE_URL = '/dshot/capture'
     var LOG_URL = '/dshot/log'
 
@@ -30,40 +33,41 @@ window.__ModuleLoader__.load({
       '.dshot-tg{width:22px;height:22px;opacity:.5}',
       '.dshot-tg[data-on="1"]{color:#00C375;opacity:1}',
       '.dshot-tg:hover{opacity:1}',
-      '.dshot-root{position:fixed;inset:0;z-index:2147483000;pointer-events:auto;background:#0b0b0d;user-select:none;-webkit-user-select:none;overflow:hidden;touch-action:none}',
-      '.dshot-bg{position:absolute;inset:-60px;background-position:center center;background-size:cover;background-repeat:no-repeat;filter:blur(38px) brightness(.70) saturate(.9);pointer-events:none}',
-      '.dshot-frame{position:absolute;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.22)}',
+      '.dshot-root{position:fixed;inset:0;z-index:2147483000;pointer-events:auto;background:#14161A;user-select:none;-webkit-user-select:none;overflow:hidden;touch-action:none;font-family:ui-sans-serif,system-ui,"Segoe UI","Microsoft YaHei",sans-serif}',
+      '.dshot-frame{position:absolute;pointer-events:none}',
       '.dshot-watchdog{position:absolute;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none;animation:dshot-watch 25s linear forwards}',
       '@keyframes dshot-watch{from{opacity:0}to{opacity:.02}}',
-      '.dshot-meta{position:absolute;left:12px;bottom:10px;color:rgba(255,255,255,.62);font-size:12px;line-height:1.2;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}',
+      '.dshot-meta{position:absolute;left:14px;bottom:12px;color:#8B929C;font-size:12px;line-height:1.2;pointer-events:none;letter-spacing:.01em}',
       '.dshot-stage{position:absolute;display:block;pointer-events:none}',
-      '.dshot-size{position:absolute;pointer-events:none;color:#fff;font-size:13px;line-height:1.15;white-space:nowrap;text-shadow:0 0 2px rgba(0,0,0,.95),0 0 4px rgba(0,0,0,.8),1px 1px 0 rgba(0,0,0,.65),-1px -1px 0 rgba(0,0,0,.65),1px -1px 0 rgba(0,0,0,.65),-1px 1px 0 rgba(0,0,0,.65)}',
-      '.dshot-bar{position:absolute;display:flex;align-items:center;padding:3px 6px;border-radius:9px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.34);pointer-events:auto;white-space:nowrap}',
-      '.dshot-tb{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:0;border-radius:6px;background:transparent;color:#3d3d3d;cursor:pointer;padding:0;flex:none}',
-      '.dshot-tb:hover{background:#f1f1f1}',
-      '.dshot-tb[data-on="1"]{background:#E6F7EE;color:#00C375}',
-      '.dshot-tb:disabled{opacity:.3;cursor:default;background:transparent}',
-      '.dshot-tb[data-red="1"]{color:#E64340}',
-      '.dshot-tb[data-green="1"]{color:#07C160}',
-      '.dshot-sep{width:1px;height:24px;background:#e8e8e8;margin:0 5px;flex:none}',
-      '.dshot-panel{position:absolute;top:calc(100% + 11px);transform:translateX(-50%);display:flex;align-items:center;height:40px;padding:0 8px;border-radius:8px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.28);z-index:2}',
-      '.dshot-panel:before{content:"";position:absolute;left:50%;top:-6px;margin-left:-6px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:6px solid #fff}',
-      '.dshot-pdb{width:30px;height:30px;border:0;border-radius:5px;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}',
-      '.dshot-pdb:hover{background:#f1f1f1}',
-      '.dshot-pdb[data-on="1"]{background:#E6F7EE}',
-      '.dshot-dot{display:block;border-radius:50%;background:#8a8a8a}',
-      '.dshot-pdb[data-on="1"] .dshot-dot{background:#00C375}',
-      '.dshot-sw{width:18px;height:18px;margin:0 3px;border-radius:50%;border:1px solid rgba(0,0,0,.18);cursor:pointer;padding:0;box-sizing:border-box;flex:none}',
-      '.dshot-sw[data-on="1"]{outline:2px solid #00C375;outline-offset:1px}',
-      '.dshot-pill{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;margin-left:6px;border:0;border-radius:6px;background:#EDEDED;color:#07C160;font-size:12px;cursor:pointer;white-space:nowrap}',
-      '.dshot-pill:hover{background:#e2e2e2}',
-      '.dshot-esc{position:absolute;top:48px;right:14px;width:34px;height:34px;border:0;border-radius:8px;background:rgba(0,0,0,.5);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;pointer-events:auto}',
-      '.dshot-esc:hover{background:rgba(0,0,0,.72)}',
-      '.dshot-txt{position:absolute;background:transparent;border:1px dashed rgba(255,255,255,.8);outline:none;min-width:60px;padding:0 2px;font-family:inherit;z-index:3}',
-      '.dshot-toast{position:fixed;left:50%;transform:translateX(-50%);top:18px;z-index:2147483001;display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:9px;background:rgba(24,24,28,.97);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:12px;max-width:min(560px,calc(100vw - 32px));box-shadow:0 10px 30px rgba(0,0,0,.45)}',
+      '.dshot-size{position:absolute;pointer-events:none;display:inline-flex;align-items:baseline;gap:3px;height:22px;padding:0 8px;border-radius:4px;background:#14161A;border:1px solid rgba(255,255,255,.16);color:#FFB02E;font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:12px;font-variant-numeric:tabular-nums;line-height:20px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.45)}',
+      '.dshot-bar{position:absolute;display:flex;align-items:center;padding:4px;border-radius:10px;background:#14161A;border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:auto;white-space:nowrap}',
+      '.dshot-tb{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:0;border-radius:7px;background:transparent;color:#C9CFD8;cursor:pointer;padding:0;flex:none;transition:background .12s,color .12s}',
+      '.dshot-tb:hover{background:rgba(255,255,255,.10);color:#fff}',
+      '.dshot-tb[data-on="1"]{background:rgba(255,176,46,.16);color:#FFB02E}',
+      '.dshot-tb:disabled{opacity:.28;cursor:default;background:transparent}',
+      '.dshot-tb[data-red="1"]{color:#9AA1AB}',
+      '.dshot-tb[data-red="1"]:hover{color:#FF6B5E;background:rgba(255,107,94,.12)}',
+      '.dshot-tb[data-green="1"]{color:#14161A;background:#FFB02E}',
+      '.dshot-tb[data-green="1"]:hover{background:#FFC157;color:#14161A}',
+      '.dshot-sep{width:1px;height:22px;background:rgba(255,255,255,.12);margin:0 4px;flex:none}',
+      '.dshot-panel{position:absolute;top:calc(100% + 8px);transform:translateX(-50%);display:flex;align-items:center;height:36px;padding:0 7px;border-radius:8px;background:#14161A;border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 20px rgba(0,0,0,.5);z-index:2}',
+      '.dshot-pdb{width:28px;height:28px;border:0;border-radius:6px;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}',
+      '.dshot-pdb:hover{background:rgba(255,255,255,.10)}',
+      '.dshot-pdb[data-on="1"]{background:rgba(255,176,46,.16)}',
+      '.dshot-dot{display:block;border-radius:50%;background:#8B929C}',
+      '.dshot-pdb[data-on="1"] .dshot-dot{background:#FFB02E}',
+      '.dshot-sw{width:18px;height:18px;margin:0 3px;border-radius:50%;border:1px solid rgba(255,255,255,.28);cursor:pointer;padding:0;box-sizing:border-box;flex:none}',
+      '.dshot-sw[data-on="1"]{outline:2px solid #FFB02E;outline-offset:1px}',
+      '.dshot-pill{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 9px;margin-left:4px;border:1px solid rgba(255,255,255,.14);border-radius:6px;background:transparent;color:#C9CFD8;font-size:12px;cursor:pointer;white-space:nowrap}',
+      '.dshot-pill:hover{background:rgba(255,255,255,.10);color:#fff}',
+      '.dshot-esc{position:absolute;top:16px;right:16px;width:34px;height:34px;border:1px solid rgba(255,255,255,.14);border-radius:8px;background:rgba(20,22,26,.92);color:#C9CFD8;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;pointer-events:auto}',
+      '.dshot-esc:hover{background:#22252B;color:#fff}',
+      '.dshot-txt{position:absolute;background:transparent;border:1px dashed rgba(255,176,46,.85);outline:none;min-width:60px;padding:0 2px;font-family:inherit;z-index:3}',
+      '.dshot-toast{position:fixed;left:50%;transform:translateX(-50%);top:18px;z-index:2147483001;display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:8px;background:#14161A;border:1px solid rgba(255,255,255,.16);color:#E8EAED;font-size:12px;max-width:min(560px,calc(100vw - 32px));box-shadow:0 10px 30px rgba(0,0,0,.55)}',
       '.dshot-toast[data-auto="1"]{animation:dshot-out 1.5s ease forwards}',
       '@keyframes dshot-out{0%{opacity:1}72%{opacity:1}100%{opacity:0}}',
-      '.dshot-x{border:0;background:transparent;color:#fff;cursor:pointer;font-size:14px;line-height:1;padding:2px 4px}',
+      '.dshot-x{border:0;background:transparent;color:#C9CFD8;cursor:pointer;font-size:14px;line-height:1;padding:2px 4px}',
+      '.dshot-x:hover{color:#fff}',
     ].join('')
 
     function clamp(v, lo, hi) {
@@ -234,10 +238,25 @@ window.__ModuleLoader__.load({
         })
       }
 
-      function callCapture(keep) {
-        return fetch(CAPTURE_URL + '?keepSelf=' + (keep ? '1' : '0'), { cache: 'no-store' }).then(function (r) {
+      function callCapture(keep, fullscreen) {
+        var q = '?keepSelf=' + (keep ? '1' : '0') + (fullscreen ? '&fullscreen=1' : '')
+        return fetch(CAPTURE_URL + q, { cache: 'no-store' }).then(function (r) {
           return r.json()
         })
+      }
+
+      // 收工：把"临时铺满全屏"的窗口还原回原来的位置大小。
+      function callRestore() {
+        try {
+          fetch('/dshot/restore', { cache: 'no-store' }).catch(function () {})
+        } catch (e) {}
+      }
+
+      // 全屏抓取后窗口还是透明的；冻结图画好了才让它显形。
+      function callShow() {
+        try {
+          fetch('/dshot/show', { cache: 'no-store' }).catch(function () {})
+        } catch (e) {}
       }
 
       function makeBackdrop(cv) {
@@ -299,6 +318,7 @@ window.__ModuleLoader__.load({
         busy = false
         log({ step: 'cancel' })
         patch({ seq: state.seq + 1, pending: false, active: false, src: null, error: '' })
+        callRestore()
       }
 
       function startCapture(invert) {
@@ -308,10 +328,13 @@ window.__ModuleLoader__.load({
         var t0 = Date.now()
         var hide = invert ? !hideSelf : hideSelf
         patch({ seq: g, pending: true, active: false, src: null, error: '' })
-        log({ step: 'click', hide: hide, vw: window.innerWidth, vh: window.innerHeight })
+        // fullscreen 只在"让开本页"时用：把窗口临时铺满整个屏幕再抓，
+        // 这样能框选到 DSH 窗口以外的画面，而且抓到的整屏图铺满覆盖层时正好 1:1。
+        var full = !!hide
+        log({ step: 'click', hide: hide, full: full, vw: window.innerWidth, vh: window.innerHeight })
         var call = null
         try {
-          call = callCapture(!hide)
+          call = callCapture(!hide, full)
         } catch (e) {
           call = Promise.reject(e)
         }
@@ -330,15 +353,26 @@ window.__ModuleLoader__.load({
         flow.then(
           function (cv) {
             busy = false
-            if (!cv || state.seq !== g) return
-            patch({ src: cv, bg: makeBackdrop(cv), W: cv.width, H: cv.height, seq: state.seq + 1, active: true, pending: false, error: '' })
+            if (!cv || state.seq !== g) {
+              callRestore()
+              return
+            }
+            patch({ src: cv, bg: '', W: cv.width, H: cv.height, seq: state.seq + 1, active: true, pending: false, error: '' })
             log({ step: 'ready', ms: Date.now() - t0, w: cv.width, h: cv.height })
+            // 等一帧让 canvas 真正画出来，再让窗口显形 ——
+            // 这样"亮起来"的瞬间看到的就是冻结图，不会有界面被拉伸的闪烁。
+            window.requestAnimationFrame(function () {
+              window.requestAnimationFrame(function () {
+                callShow()
+              })
+            })
           },
           function (err) {
             busy = false
             var msg = (err && err.message) || String(err)
             log({ step: 'error', ms: Date.now() - t0, msg: msg })
             patch({ pending: false, active: false, error: msg })
+            callRestore()          // 抓屏失败 = 窗口还铺满着，必须还原
           },
         )
       }
@@ -404,6 +438,11 @@ window.__ModuleLoader__.load({
         var selS = React.useState(null)
         var sel = selS[0]
         var setSel = selS[1]
+        // 拖动时选框直接改 ref 用于即时绘制；松手才 setSel 落库。
+        var selRef = React.useRef(null)
+        React.useEffect(function () {
+          selRef.current = sel
+        }, [sel])
         var toolS = React.useState('select')
         var tool = toolS[0]
         var setTool = toolS[1]
@@ -419,9 +458,11 @@ window.__ModuleLoader__.load({
         var redoS = React.useState([])
         var redo = redoS[0]
         var setRedo = redoS[1]
-        var dragS = React.useState(null)
-        var drag = dragS[0]
-        var setDrag = dragS[1]
+        // 拖拽状态全部走 ref + requestAnimationFrame：
+        // 指针事件每秒可上百个，用 setState 会让整棵树每帧重渲染，这就是之前卡死的原因。
+        var dragRef = React.useRef(null)
+        var rafRef = React.useRef(0)
+        var sizeElRef = React.useRef(null)
         var txtS = React.useState(null)
         var txt = txtS[0]
         var setTxt = txtS[1]
@@ -450,7 +491,8 @@ window.__ModuleLoader__.load({
             setSel(null)
             setStrokes([])
             setRedo([])
-            setDrag(null)
+            dragRef.current = null
+            selRef.current = null
             setTxt(null)
             setFlash(null)
             setTool('select')
@@ -554,10 +596,12 @@ window.__ModuleLoader__.load({
           g.setTransform(1, 0, 0, 1, 0, 0)
           g.clearRect(0, 0, W, H)
           g.drawImage(src, 0, 0, W, H)
-          var s = drag && drag.mode === 'new' ? drag.rect : sel
+          var d = dragRef.current
+          var liveSel = selRef.current || sel
+          var s = d && d.mode === 'new' ? d.rect : liveSel
           if (s && s.w > 1 && s.h > 1) {
             g.save()
-            g.fillStyle = 'rgba(0,0,0,.45)'
+            g.fillStyle = 'rgba(6,8,11,.55)'
             g.fillRect(0, 0, W, s.y)
             g.fillRect(0, s.y + s.h, W, H - s.y - s.h)
             g.fillRect(0, s.y, s.x, s.h)
@@ -568,15 +612,15 @@ window.__ModuleLoader__.load({
             g.rect(s.x, s.y, s.w, s.h)
             g.clip()
             renderAll(g, strokes)
-            if (drag && drag.preview) renderOne(g, drag.preview)
+            if (d && d.preview) renderOne(g, d.preview)
             g.restore()
             var blw = Math.max(1, 2 / scale)
             g.save()
-            g.strokeStyle = GREEN
+            g.strokeStyle = AMBER
             g.lineWidth = blw
             g.strokeRect(s.x + blw / 2, s.y + blw / 2, Math.max(0, s.w - blw), Math.max(0, s.h - blw))
             g.restore()
-            if (!(drag && drag.mode === 'new')) {
+            if (!(d && d.mode === 'new')) {
               var hs = Math.max(4, 9 / scale)
               var pts = [
                 [s.x, s.y],
@@ -589,7 +633,7 @@ window.__ModuleLoader__.load({
                 [s.x, s.y + s.h / 2],
               ]
               g.save()
-              g.fillStyle = GREEN
+              g.fillStyle = AMBER
               for (var i = 0; i < pts.length; i++) {
                 var hx = pts[i][0] - hs / 2
                 var hy = pts[i][1] - hs / 2
@@ -601,18 +645,41 @@ window.__ModuleLoader__.load({
               }
               g.restore()
             }
-          } else if (drag && drag.preview) {
+            // 尺寸读数跟着选框走（直接改 DOM，不走 React）
+            var el = sizeElRef.current
+            if (el && d && d.mode === 'new') {
+              el.textContent = Math.round(s.w) + ' \u00d7 ' + Math.round(s.h)
+              el.style.display = 'inline-flex'
+              el.style.left = clamp(ox + s.x * scale, 2, Math.max(2, view[0] - 120)) + 'px'
+              el.style.top = (oy + s.y * scale - 26 >= 2 ? oy + s.y * scale - 26 : oy + s.y * scale + 4) + 'px'
+            }
+          } else if (d && d.preview) {
             g.save()
             g.beginPath()
             g.rect(0, 0, W, H)
             g.clip()
-            renderOne(g, drag.preview)
+            renderOne(g, d.preview)
             g.restore()
           }
         }
 
+        // 一帧只画一次：拖动时指针事件可能上百个/秒，直接画会把主线程堵死。
+        function scheduleDraw() {
+          if (rafRef.current) return
+          rafRef.current = window.requestAnimationFrame(function () {
+            rafRef.current = 0
+            draw()
+          })
+        }
+
         React.useEffect(function () {
-          draw()
+          scheduleDraw()
+          return function () {
+            if (rafRef.current) {
+              window.cancelAnimationFrame(rafRef.current)
+              rafRef.current = 0
+            }
+          }
         })
 
         React.useEffect(
@@ -684,6 +751,11 @@ window.__ModuleLoader__.load({
           setTxt(null)
         }
 
+        function beginDrag(v) {
+          dragRef.current = v
+          scheduleDraw()
+        }
+
         function onDown(e) {
           if (e.button !== 0) return
           e.preventDefault()
@@ -693,20 +765,20 @@ window.__ModuleLoader__.load({
           var p = toImg(e)
           if (txt) commitText()
           if (!sel) {
-            setDrag({ mode: 'new', anchor: p, rect: { x: p.x, y: p.y, w: 0, h: 0 } })
+            beginDrag({ mode: 'new', anchor: p, rect: { x: p.x, y: p.y, w: 0, h: 0 } })
             return
           }
           if (tool === 'select') {
             var hh = hitHandle(p, sel)
             if (hh) {
-              setDrag({ mode: 'resize', handle: hh, orig: sel, anchor: p })
+              beginDrag({ mode: 'resize', handle: hh, orig: sel, anchor: p })
               return
             }
             if (inside(p, sel)) {
-              setDrag({ mode: 'move', orig: sel, anchor: p })
+              beginDrag({ mode: 'move', orig: sel, anchor: p })
               return
             }
-            setDrag({ mode: 'new', anchor: p, rect: { x: p.x, y: p.y, w: 0, h: 0 } })
+            beginDrag({ mode: 'new', anchor: p, rect: { x: p.x, y: p.y, w: 0, h: 0 } })
             return
           }
           if (tool === 'text') {
@@ -714,7 +786,7 @@ window.__ModuleLoader__.load({
             return
           }
           if (!inside(p, sel)) {
-            setDrag({ mode: 'new', anchor: p, rect: { x: p.x, y: p.y, w: 0, h: 0 } })
+            beginDrag({ mode: 'new', anchor: p, rect: { x: p.x, y: p.y, w: 0, h: 0 } })
             return
           }
           var pv
@@ -722,42 +794,56 @@ window.__ModuleLoader__.load({
           else if (tool === 'arrow') pv = { type: 'arrow', x1: p.x, y1: p.y, x2: p.x, y2: p.y, color: color, lw: lw }
           else if (tool === 'mosaic') pv = { type: 'mosaic', x: p.x, y: p.y, w: 0, h: 0, color: color, lw: lw }
           else pv = { type: tool, x: p.x, y: p.y, w: 0, h: 0, color: color, lw: lw }
-          setDrag({ mode: 'draw', anchor: p, preview: pv })
+          beginDrag({ mode: 'draw', anchor: p, preview: pv })
         }
 
         function onMove(e) {
-          if (!drag) return
+          // 拖动期间只改 ref + 请求一帧重绘，绝不 setState（否则每个指针事件都整树重渲染）
+          var d = dragRef.current
+          if (!d) return
           var p = toImg(e)
-          if (drag.mode === 'new') {
-            setDrag({ mode: 'new', anchor: drag.anchor, rect: normRect(drag.anchor, p) })
-          } else if (drag.mode === 'move') {
-            var dx = p.x - drag.anchor.x
-            var dy = p.y - drag.anchor.y
-            var o = drag.orig
-            setSel({ x: clamp(o.x + dx, 0, Math.max(0, W - o.w)), y: clamp(o.y + dy, 0, Math.max(0, H - o.h)), w: o.w, h: o.h })
-          } else if (drag.mode === 'resize') {
-            setSel(resizeRect(drag.orig, drag.handle, p))
-          } else if (drag.mode === 'draw') {
-            var pv = drag.preview
+          if (d.mode === 'new') {
+            d.rect = normRect(d.anchor, p)
+          } else if (d.mode === 'move') {
+            var dx = p.x - d.anchor.x
+            var dy = p.y - d.anchor.y
+            var o = d.orig
+            var moved = { x: clamp(o.x + dx, 0, Math.max(0, W - o.w)), y: clamp(o.y + dy, 0, Math.max(0, H - o.h)), w: o.w, h: o.h }
+            d.liveSel = moved
+            selRef.current = moved
+          } else if (d.mode === 'resize') {
+            var rs = resizeRect(d.orig, d.handle, p)
+            d.liveSel = rs
+            selRef.current = rs
+          } else if (d.mode === 'draw') {
+            var pv = d.preview
             if (pv.type === 'pen') {
-              setDrag({ mode: 'draw', anchor: drag.anchor, preview: { type: 'pen', pts: pv.pts.concat([[p.x, p.y]]), color: pv.color, lw: pv.lw } })
+              pv.pts.push([p.x, p.y])
             } else if (pv.type === 'arrow') {
-              setDrag({ mode: 'draw', anchor: drag.anchor, preview: { type: 'arrow', x1: pv.x1, y1: pv.y1, x2: p.x, y2: p.y, color: pv.color, lw: pv.lw } })
+              pv.x2 = p.x
+              pv.y2 = p.y
             } else if (pv.type === 'mosaic') {
-              setDrag({ mode: 'draw', anchor: drag.anchor, preview: { type: 'mosaic', x: pv.x, y: pv.y, w: Math.abs(p.x - pv.x), h: Math.abs(p.y - pv.y), color: pv.color, lw: pv.lw } })
+              pv.w = Math.abs(p.x - pv.x)
+              pv.h = Math.abs(p.y - pv.y)
             } else {
               var r = normRect(pv, p)
-              setDrag({ mode: 'draw', anchor: drag.anchor, preview: { type: pv.type, x: r.x, y: r.y, w: r.w, h: r.h, color: pv.color, lw: pv.lw } })
+              pv.x = r.x
+              pv.y = r.y
+              pv.w = r.w
+              pv.h = r.h
             }
           }
+          scheduleDraw()
         }
 
         function onUp() {
-          if (!drag) return
-          var d = drag
-          setDrag(null)
+          var d = dragRef.current
+          if (!d) return
+          dragRef.current = null
           if (d.mode === 'new') {
             setSel(d.rect.w > 4 && d.rect.h > 4 ? d.rect : null)
+          } else if (d.mode === 'move' || d.mode === 'resize') {
+            if (d.liveSel) setSel(d.liveSel)
           } else if (d.mode === 'draw') {
             var pv = d.preview
             var ok = true
@@ -791,10 +877,12 @@ window.__ModuleLoader__.load({
         }
 
         function closeNow() {
-          setDrag(null)
+          dragRef.current = null
+          selRef.current = null
           setTxt(null)
           setFlash(null)
           patch({ active: false, src: null, error: '' })
+          callRestore()          // 全屏抓取过的话，这里把窗口还原
         }
 
         function doFinish() {
@@ -1065,9 +1153,6 @@ window.__ModuleLoader__.load({
         }
 
         var children = []
-        if (state.bg) {
-          children.push(React.createElement('div', { key: 'bg', className: 'dshot-bg', style: { backgroundImage: 'url("' + state.bg + '")' } }))
-        }
         children.push(
           React.createElement('canvas', {
             key: 'cv',
@@ -1094,22 +1179,25 @@ window.__ModuleLoader__.load({
           ),
         )
 
-        if (sel) {
-          children.push(
-            React.createElement(
-              'div',
-              {
-                key: 'size',
-                className: 'dshot-size',
-                style: {
-                  left: clamp(ox + sel.x * scale, 2, Math.max(2, view[0] - 120)) + 'px',
-                  top: (oy + sel.y * scale - 20 >= 2 ? oy + sel.y * scale - 20 : oy + sel.y * scale + 4) + 'px',
-                },
-              },
-              Math.round(sel.w) + ' x ' + Math.round(sel.h),
-            ),
-          )
-        }
+        // 尺寸读数常驻（拖动时由 draw() 直接改 DOM，不走 React，避免每帧重渲染）
+        children.push(
+          React.createElement(
+            'div',
+            {
+              key: 'size',
+              className: 'dshot-size',
+              ref: sizeElRef,
+              style: sel
+                ? {
+                    display: 'inline-flex',
+                    left: clamp(ox + sel.x * scale, 2, Math.max(2, view[0] - 120)) + 'px',
+                    top: (oy + sel.y * scale - 26 >= 2 ? oy + sel.y * scale - 26 : oy + sel.y * scale + 4) + 'px',
+                  }
+                : { display: 'none' },
+            },
+            sel ? Math.round(sel.w) + ' \u00d7 ' + Math.round(sel.h) : '',
+          ),
+        )
 
         if (flash) {
           children.push(
@@ -1245,6 +1333,9 @@ window.__ModuleLoader__.load({
           children,
         )
       }
+
+      // 启动标记：方便确认页面刷新后加载的是哪一版前端。
+      log({ step: 'client-boot', v: '1.4-fullscreen', dw: window.devicePixelRatio })
 
       ctx.effect(function () {
         function onKey(e) {
